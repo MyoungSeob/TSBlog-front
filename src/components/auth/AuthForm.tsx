@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import palette from '../../lib/styles';
 import Button, { ButtonProps } from '../base/Button';
 import { Link } from 'react-router-dom';
+import { AuthState } from '../../features/auth/authSlice';
 
 /*
     회원가입 또는 로그인 폼을 보여줍니다.
@@ -10,6 +11,9 @@ import { Link } from 'react-router-dom';
 
 export interface AuthFormProps {
   type: 'login' | 'register';
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  form: AuthState;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 
 const AuthFormBlock = styled.div`
@@ -52,22 +56,30 @@ const ButtonWithMarginTop = styled(Button)<ButtonProps>`
   margin-top: 1rem;
 `;
 
-const AuthForm = ({ type }: AuthFormProps) => {
+const AuthForm = ({ type, onChange, form, onSubmit }: AuthFormProps) => {
   const text = type === 'login' ? '로그인' : '회원가입';
   return (
     <AuthFormBlock>
       <h3>{text}</h3>
-      <form>
+      <form onSubmit={onSubmit}>
         <StyledInput
           autoComplete="username"
           name="username"
           placeholder="아이디"
+          onChange={onChange}
+          value={
+            type === 'login' ? form.login.username : form.register.username
+          }
         />
         <StyledInput
           autoComplete="new-password"
           name="password"
           placeholder="비밀번호"
+          onChange={onChange}
           type="password"
+          value={
+            type === 'login' ? form.login.password : form.register.password
+          }
         />
         {type === 'register' && (
           <StyledInput
@@ -75,6 +87,8 @@ const AuthForm = ({ type }: AuthFormProps) => {
             name="passwordConfirm"
             placeholder="비밀번호 확인"
             type="password"
+            onChange={onChange}
+            value={form.register.passwordConfirm}
           />
         )}
         <ButtonWithMarginTop cyan fullWidth>

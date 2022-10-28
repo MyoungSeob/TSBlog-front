@@ -3,14 +3,14 @@ import AuthForm from '../../components/auth/AuthForm';
 import { useAppDispatch, useAppSelector } from '../../features';
 import { change_field, initialize_form } from '../../features/auth/authSlice';
 
-const LoginForm = () => {
+const RegisterForm = () => {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.auth);
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
     dispatch(
       change_field({
-        form: 'login',
+        form: 'register',
         key: name,
         value,
       }),
@@ -22,12 +22,12 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
-    dispatch(initialize_form({ form: 'login', key: '', value: '' }));
+    dispatch(initialize_form({ form: 'register', key: '', value: '' }));
   }, [dispatch]);
 
   return (
     <AuthForm
-      type="login"
+      type="register"
       onChange={onChange}
       form={form}
       onSubmit={onSubmit}
@@ -35,4 +35,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

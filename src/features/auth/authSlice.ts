@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit';
 
 export interface AuthState {
   register: {
@@ -10,6 +10,12 @@ export interface AuthState {
     username: string;
     password: string;
   };
+}
+
+interface Action {
+  form: 'login' | 'register';
+  key: string | 'username' | 'password' | 'passwordConfirm';
+  value: string;
 }
 
 const initialState: AuthState = {
@@ -28,12 +34,17 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    change_field: (state, action: PayloadAction<AuthState>) => {
-      state.login.username = action.payload.login.username;
-      state.login.password = action.payload.login.password;
+    change_field: (state: any, action: PayloadAction<Action>) => {
+      state[action.payload.form][action.payload.key] = action.payload.value;
+    },
+    initialize_form: (state, action: PayloadAction<Action>) => {
+      state = {
+        ...state,
+        [action.payload.form]: state[action.payload.form],
+      };
     },
   },
 });
 
-export const { change_field } = authSlice.actions;
+export const { change_field, initialize_form } = authSlice.actions;
 export default authSlice.reducer;
