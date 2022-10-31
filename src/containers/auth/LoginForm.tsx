@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import AuthForm from '../../components/auth/AuthForm';
 import { useAppDispatch, useAppSelector } from '../../features';
-import { change_field, initialize_form } from '../../features/auth/authSlice';
+import { change_field, initialize_form } from '../../features/authSlice';
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();

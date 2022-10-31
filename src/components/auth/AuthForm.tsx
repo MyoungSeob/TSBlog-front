@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import palette from '../../lib/styles';
 import Button, { ButtonProps } from '../base/Button';
 import { Link } from 'react-router-dom';
-import { AuthState } from '../../features/auth/authSlice';
+import { AuthState } from '../../features/authSlice';
 
 /*
     회원가입 또는 로그인 폼을 보여줍니다.

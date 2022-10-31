@@ -1,11 +1,16 @@
 import React, { useEffect } from 'react';
 import AuthForm from '../../components/auth/AuthForm';
 import { useAppDispatch, useAppSelector } from '../../features';
-import { change_field, initialize_form } from '../../features/auth/authSlice';
+import {
+  change_field,
+  fetchUserRegister,
+  initialize_form,
+} from '../../features/authSlice';
 
 const RegisterForm = () => {
   const dispatch = useAppDispatch();
   const form = useAppSelector((state) => state.auth);
+  const loading = form.loading;
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
     dispatch(
@@ -19,6 +24,12 @@ const RegisterForm = () => {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    dispatch(
+      fetchUserRegister({
+        username: form.register.username,
+        password: form.register.password,
+      }),
+    );
   };
 
   useEffect(() => {
