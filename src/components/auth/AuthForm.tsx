@@ -3,7 +3,7 @@ import styled from '@emotion/styled';
 import palette from '../../lib/styles';
 import Button, { ButtonProps } from '../base/Button';
 import { Link } from 'react-router-dom';
-import { AuthState } from '../../features/authSlice';
+import { UserInput } from '../../features/authSlice';
 
 /*
     회원가입 또는 로그인 폼을 보여줍니다.
@@ -12,8 +12,9 @@ import { AuthState } from '../../features/authSlice';
 export interface AuthFormProps {
   type: 'login' | 'register';
   onChange: React.ChangeEventHandler<HTMLInputElement>;
-  form: AuthState;
+  form: UserInput;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
+  errorMessage: string | null;
 }
 
 const AuthFormBlock = styled.div`
@@ -56,7 +57,22 @@ const ButtonWithMarginTop = styled(Button)<ButtonProps>`
   margin-top: 1rem;
 `;
 
-const AuthForm = ({ type, onChange, form, onSubmit }: AuthFormProps) => {
+/**
+ * 에러를 보여줍니다.
+ */
+const ErrorMessage = styled.div`
+  color: red;
+  text-align: center;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+`;
+const AuthForm = ({
+  type,
+  onChange,
+  form,
+  onSubmit,
+  errorMessage,
+}: AuthFormProps) => {
   const text = type === 'login' ? '로그인' : '회원가입';
   return (
     <AuthFormBlock>
@@ -67,9 +83,7 @@ const AuthForm = ({ type, onChange, form, onSubmit }: AuthFormProps) => {
           name="username"
           placeholder="아이디"
           onChange={onChange}
-          value={
-            type === 'login' ? form.login.username : form.register.username
-          }
+          value={form.username}
         />
         <StyledInput
           autoComplete="new-password"
@@ -77,9 +91,7 @@ const AuthForm = ({ type, onChange, form, onSubmit }: AuthFormProps) => {
           placeholder="비밀번호"
           onChange={onChange}
           type="password"
-          value={
-            type === 'login' ? form.login.password : form.register.password
-          }
+          value={form.password}
         />
         {type === 'register' && (
           <StyledInput
@@ -88,9 +100,11 @@ const AuthForm = ({ type, onChange, form, onSubmit }: AuthFormProps) => {
             placeholder="비밀번호 확인"
             type="password"
             onChange={onChange}
-            value={form.register.passwordConfirm}
+            value={form.passwordConfirm}
           />
         )}
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
+
         <ButtonWithMarginTop cyan fullWidth>
           {text}
         </ButtonWithMarginTop>
