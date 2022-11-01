@@ -6,10 +6,25 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './features';
+import { getLocalStorageItem } from './lib/functions/localStorage';
+import { USER_LOCALSTORAGE_KEY } from './lib/constants';
+import { tempSetUser, fetchUserCheck } from './features/authSlice';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
 );
+
+async function loadUser() {
+  const userInfo = await getLocalStorageItem(USER_LOCALSTORAGE_KEY);
+  if (!userInfo) {
+    return;
+  } else {
+    store.dispatch(tempSetUser(userInfo));
+    store.dispatch(fetchUserCheck());
+  }
+}
+
+loadUser();
 root.render(
   <Provider store={store}>
     <BrowserRouter>

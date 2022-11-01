@@ -104,8 +104,7 @@ const AuthForm = ({
           />
         )}
         {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
-
-        <ButtonWithMarginTop cyan fullWidth>
+        <ButtonWithMarginTop cyan fullwidth>
           {text}
         </ButtonWithMarginTop>
       </form>

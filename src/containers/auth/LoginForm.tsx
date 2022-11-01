@@ -8,6 +8,8 @@ import {
   fetchUserLogin,
   initialize_form,
 } from '../../features/authSlice';
+import { USER_LOCALSTORAGE_KEY } from '../../lib/constants';
+import { setLocalStorageItem } from '../../lib/functions/localStorage';
 
 const LoginForm = () => {
   const dispatch = useAppDispatch();
@@ -64,8 +66,9 @@ const LoginForm = () => {
   }, [error, auth, dispatch]);
 
   useEffect(() => {
-    if (auth?.username) {
+    if (auth) {
       navigation('/');
+      setLocalStorageItem(USER_LOCALSTORAGE_KEY, JSON.stringify(auth));
     }
   }, [auth, navigation]);
 

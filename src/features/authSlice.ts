@@ -4,8 +4,10 @@ import {
   PayloadAction,
   createAsyncThunk,
 } from '@reduxjs/toolkit';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { check, login, register } from '../lib/api/auth';
+import { USER_LOCALSTORAGE_KEY } from '../lib/constants';
+import { removeLocalStorageItem } from '../lib/functions/localStorage';
 
 export interface AuthState {
   register: UserInput;
@@ -56,7 +58,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const fetchUserRegister = createAsyncThunk(
+export const fetchUserRegister = createAsyncThunk<UserFetchReults, UserInput>(
   'auth/REGISTER',
   async (user: UserInput, { rejectWithValue }) => {
     const { username, password } = user;
@@ -76,10 +78,12 @@ export const fetchUserRegister = createAsyncThunk(
     }
   },
 );
-export const fetchUserLogin = createAsyncThunk(
+
+export const fetchUserLogin = createAsyncThunk<UserFetchReults, UserInput>(
   'auth/LOGIN',
-  async (user: UserInput, { rejectWithValue }) => {
+  async (user, thunkOption) => {
     const { username, password } = user;
+    const { rejectWithValue } = thunkOption;
     try {
       const result = await login({ username, password });
       return result;
@@ -96,7 +100,26 @@ export const fetchUserLogin = createAsyncThunk(
     }
   },
 );
-export const fetchUserCheck = createAsyncThunk('auth/CHECK', check);
+
+export const fetchUserCheck = createAsyncThunk<UserFetchReults, void>(
+  'auth/CHECK',
+  async (_, { rejectWithValue }) => {
+    try {
+      const result = await check();
+      return result;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue({
+          data: error.response?.data,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+        } as AxiosResponseError);
+      } else {
+        return rejectWithValue(error);
+      }
+    }
+  },
+);
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -121,6 +144,13 @@ export const authSlice = createSlice({
           passwordConfirm: '',
         };
       }
+    },
+    tempSetUser: (state, action: PayloadAction<UserFetchReults>) => {
+      state.result = action.payload;
+    },
+    logout: (state) => {
+      state.result = null;
+      removeLocalStorageItem(USER_LOCALSTORAGE_KEY);
     },
   },
   extraReducers: (builder) => {
@@ -199,10 +229,13 @@ export const authSlice = createSlice({
         if (state.loading === 'pending') {
           state.loading = 'idle';
           state.error = action.payload;
+          state.result = null;
+          removeLocalStorageItem(USER_LOCALSTORAGE_KEY);
         }
       });
   },
 });
 
-export const { change_field, initialize_form } = authSlice.actions;
+export const { change_field, initialize_form, tempSetUser, logout } =
+  authSlice.actions;
 export default authSlice.reducer;
