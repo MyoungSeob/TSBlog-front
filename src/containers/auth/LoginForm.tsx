@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/auth/AuthForm';
 import { useAppDispatch, useAppSelector } from '../../features';
-import {
-  change_field,
-  fetchUserCheck,
-  fetchUserLogin,
-  initialize_form,
-} from '../../features/authSlice';
+import { change_field, initialize_form } from '../../features/authSlice';
+import { fetchUserCheck, fetchUserLogin } from '../../features/userSlice';
+
 import { USER_LOCALSTORAGE_KEY } from '../../lib/constants';
 import { setLocalStorageItem } from '../../lib/functions/localStorage';
 
@@ -15,18 +12,18 @@ const LoginForm = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigate();
   const [loginError, setLoginError] = useState<string | null>(null);
-  const { form, auth, error, loading } = useAppSelector(({ auth }) => ({
+  const { form, user, error } = useAppSelector(({ auth, user }) => ({
     form: auth.login,
-    auth: auth.result,
-    error: auth.error,
-    loading: auth.loading,
+    user: user.result,
+    error: user.error,
+    loading: user.loading,
   }));
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
     dispatch(
       change_field({
         form: 'login',
-        key: name,
+        key: name as 'password' | 'username' | 'passwordConfirm',
         value,
       }),
     );
@@ -44,7 +41,7 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
-    dispatch(initialize_form({ form: 'login', key: '', value: '' }));
+    dispatch(initialize_form({ form: 'login', key: 'username', value: '' }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -58,19 +55,20 @@ const LoginForm = () => {
       }
       return;
     }
-    if (auth?.username) {
+    if (user?.username) {
       console.log('로그인 성공');
-      console.log(auth);
+      console.log(user);
       dispatch(fetchUserCheck());
     }
-  }, [error, auth, dispatch]);
+  }, [error, user, dispatch]);
 
   useEffect(() => {
-    if (auth) {
+    if (user) {
       navigation('/');
-      setLocalStorageItem(USER_LOCALSTORAGE_KEY, JSON.stringify(auth));
+      setLocalStorageItem(USER_LOCALSTORAGE_KEY, JSON.stringify(user));
+      dispatch(initialize_form({ form: 'login', key: 'username', value: '' }));
     }
-  }, [auth, navigation]);
+  }, [user, navigation, dispatch]);
 
   return (
     <AuthForm

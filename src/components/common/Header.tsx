@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { Link } from 'react-router-dom';
 import { useAppDispatch } from '../../features';
-import { logout, UserFetchReults } from '../../features/authSlice';
+import { logout, UserFetchReults } from '../../features/userSlice';
 import Button from '../base/Button';
 import Responsive from './Responsive';
 

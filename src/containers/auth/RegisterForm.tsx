@@ -2,12 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/auth/AuthForm';
 import { useAppDispatch, useAppSelector } from '../../features';
-import {
-  change_field,
-  fetchUserCheck,
-  fetchUserRegister,
-  initialize_form,
-} from '../../features/authSlice';
+import { change_field, initialize_form } from '../../features/authSlice';
+import { fetchUserCheck, fetchUserRegister } from '../../features/userSlice';
 import { USER_LOCALSTORAGE_KEY } from '../../lib/constants';
 import { setLocalStorageItem } from '../../lib/functions/localStorage';
 
@@ -15,18 +11,18 @@ const RegisterForm = () => {
   const dispatch = useAppDispatch();
   const navigation = useNavigate();
   const [registerError, setRegisterError] = useState<string | null>(null);
-  const { form, auth, error, loading } = useAppSelector(({ auth }) => ({
+  const { form, user, error } = useAppSelector(({ auth, user }) => ({
     form: auth.register,
-    auth: auth.result,
-    error: auth.error,
-    loading: auth.loading,
+    user: user.result,
+    error: user.error,
+    loading: user.loading,
   }));
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target;
     dispatch(
       change_field({
         form: 'register',
-        key: name,
+        key: name as 'password' | 'username' | 'passwordConfirm',
         value,
       }),
     );
@@ -56,7 +52,7 @@ const RegisterForm = () => {
   };
 
   useEffect(() => {
-    dispatch(initialize_form({ form: 'register', key: '', value: '' }));
+    dispatch(initialize_form({ form: 'register', key: 'password', value: '' }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -68,19 +64,22 @@ const RegisterForm = () => {
       setRegisterError('회원가입 오류 발생');
       return;
     }
-    if (auth) {
+    if (user) {
       console.log('회원가입 성공');
-      console.log(auth);
+      console.log(user);
       dispatch(fetchUserCheck());
     }
-  }, [error, auth, dispatch]);
+  }, [error, user, dispatch]);
 
   useEffect(() => {
-    if (auth) {
+    if (user) {
       navigation('/');
-      setLocalStorageItem(USER_LOCALSTORAGE_KEY, JSON.stringify(auth));
+      setLocalStorageItem(USER_LOCALSTORAGE_KEY, JSON.stringify(user));
+      dispatch(
+        initialize_form({ form: 'register', key: 'password', value: '' }),
+      );
     }
-  }, [auth, navigation]);
+  }, [user, navigation, dispatch]);
 
   return (
     <AuthForm

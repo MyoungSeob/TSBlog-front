@@ -1,5 +1,6 @@
 import client from './client';
-import { UserInput, UserFetchReults } from '../../features/authSlice';
+import { UserInput } from '../../features/authSlice';
+import { UserFetchReults } from '../../features/userSlice';
 
 export const login = async (user: UserInput) => {
   const { username, password } = user;

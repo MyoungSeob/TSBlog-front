@@ -1,4 +1,4 @@
-import { UserFetchReults } from '../../features/authSlice';
+import { UserFetchReults } from '../../features/userSlice';
 
 export async function setLocalStorageItem(key: string, value: string) {
   try {

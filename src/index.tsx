@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import { store } from './features';
 import { getLocalStorageItem } from './lib/functions/localStorage';
 import { USER_LOCALSTORAGE_KEY } from './lib/constants';
-import { tempSetUser, fetchUserCheck } from './features/authSlice';
+import { tempSetUser, fetchUserCheck } from './features/userSlice';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,
