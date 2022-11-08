@@ -15,6 +15,7 @@ export interface AuthFormProps {
   form: UserInput;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
   errorMessage: string | null;
+  onErrorInitialize: () => void;
 }
 
 const AuthFormBlock = styled.div`
@@ -72,6 +73,7 @@ const AuthForm = ({
   form,
   onSubmit,
   errorMessage,
+  onErrorInitialize,
 }: AuthFormProps) => {
   const text = type === 'login' ? '로그인' : '회원가입';
   return (
@@ -110,9 +112,13 @@ const AuthForm = ({
       </form>
       <Footer>
         {type === 'login' ? (
-          <Link to="/register">회원가입</Link>
+          <Link to="/register" onClick={() => onErrorInitialize()}>
+            회원가입
+          </Link>
         ) : (
-          <Link to="/login">로그인</Link>
+          <Link to="/login" onClick={() => onErrorInitialize()}>
+            로그인
+          </Link>
         )}
       </Footer>
     </AuthFormBlock>

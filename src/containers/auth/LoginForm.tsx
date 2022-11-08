@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import AuthForm from '../../components/auth/AuthForm';
 import { useAppDispatch, useAppSelector } from '../../features';
 import { change_field, initialize_form } from '../../features/authSlice';
-import { fetchUserCheck, fetchUserLogin } from '../../features/userSlice';
+import {
+  errorInitialize,
+  fetchUserCheck,
+  fetchUserLogin,
+} from '../../features/userSlice';
 
 import { USER_LOCALSTORAGE_KEY } from '../../lib/constants';
 import { setLocalStorageItem } from '../../lib/functions/localStorage';
@@ -27,6 +31,10 @@ const LoginForm = () => {
         value,
       }),
     );
+  };
+
+  const onErrorInitialize = () => {
+    dispatch(errorInitialize());
   };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,6 +85,7 @@ const LoginForm = () => {
       form={form}
       onSubmit={onSubmit}
       errorMessage={loginError}
+      onErrorInitialize={onErrorInitialize}
     />
   );
 };

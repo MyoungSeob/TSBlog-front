@@ -21,6 +21,6 @@ export const register = async (user: UserInput) => {
 };
 
 export const check = async () => {
-  const response = await client.get('/api/auth/check');
+  const response = await client.get<UserFetchReults>('/api/auth/check');
   return response.data;
 };

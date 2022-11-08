@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { UserInput } from './authSlice';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { register, login, check } from '../lib/api/user';
 import { removeLocalStorageItem } from '../lib/functions/localStorage';
 import { USER_LOCALSTORAGE_KEY } from '../lib/constants';
@@ -8,14 +8,13 @@ import { USER_LOCALSTORAGE_KEY } from '../lib/constants';
 export interface UserState {
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   result: UserFetchReults | null;
-  error: any;
+  error: AxiosResponseError | null;
   currentRequestId: string | undefined;
 }
 
 export interface UserFetchReults {
   _id: string | null;
   username: string | null;
-  __v?: number | null;
 }
 
 export interface AxiosResponseError {
@@ -31,68 +30,71 @@ const initialState: UserState = {
   error: null,
 };
 
-export const fetchUserRegister = createAsyncThunk<UserFetchReults, UserInput>(
-  'user/REGISTER',
-  async (user: UserInput, { rejectWithValue }) => {
-    const { username, password } = user;
-    try {
-      const result = await register({ username, password });
-      return result;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return rejectWithValue({
-          data: error.response?.data,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-        } as AxiosResponseError);
-      } else {
-        return rejectWithValue(error);
-      }
+export const fetchUserRegister = createAsyncThunk<
+  UserFetchReults,
+  UserInput,
+  { rejectValue: AxiosResponseError }
+>('user/REGISTER', async (user: UserInput, { rejectWithValue }) => {
+  const { username, password } = user;
+  try {
+    const result = await register({ username, password });
+    return result;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue({
+        data: error.response.data,
+        status: error.response.status,
+        statusText: error.response.statusText,
+      });
+    } else {
+      throw new Error('에러가 발생했습니다.');
     }
-  },
-);
+  }
+});
 
-export const fetchUserLogin = createAsyncThunk<UserFetchReults, UserInput>(
-  'user/LOGIN',
-  async (user, thunkOption) => {
-    const { username, password } = user;
-    const { rejectWithValue } = thunkOption;
-    try {
-      const result = await login({ username, password });
-      return result;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return rejectWithValue({
-          data: error.response?.data,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-        } as AxiosResponseError);
-      } else {
-        return rejectWithValue(error);
-      }
+export const fetchUserLogin = createAsyncThunk<
+  UserFetchReults,
+  UserInput,
+  { rejectValue: AxiosResponseError }
+>('user/LOGIN', async (user, thunkOption) => {
+  const { username, password } = user;
+  const { rejectWithValue } = thunkOption;
+  try {
+    const response = await login({ username, password });
+    return response;
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      return rejectWithValue({
+        data: e.response.data,
+        status: e.response.status,
+        statusText: e.response.statusText,
+      });
+    } else {
+      throw new Error('에러가 발생했습니다.');
     }
-  },
-);
+  }
+});
 
-export const fetchUserCheck = createAsyncThunk<UserFetchReults, void>(
-  'user/CHECK',
-  async (_, { rejectWithValue }) => {
-    try {
-      const result = await check();
-      return result;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return rejectWithValue({
-          data: error.response?.data,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-        } as AxiosResponseError);
-      } else {
-        return rejectWithValue(error);
-      }
+export const fetchUserCheck = createAsyncThunk<
+  UserFetchReults,
+  void,
+  { rejectValue: AxiosResponseError }
+>('user/CHECK', async (_, { rejectWithValue }) => {
+  try {
+    const result = await check();
+    return result;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      return rejectWithValue({
+        data: error.response.data,
+        status: error.response.status,
+        statusText: error.response.statusText,
+      });
+    } else {
+      throw new Error('에러가 발생했습니다.');
     }
-  },
-);
+  }
+});
 
 export const userSlice = createSlice({
   name: 'user',
@@ -104,6 +106,9 @@ export const userSlice = createSlice({
     logout: (state) => {
       state.result = null;
       removeLocalStorageItem(USER_LOCALSTORAGE_KEY);
+    },
+    errorInitialize: (state) => {
+      state.error = null;
     },
   },
   extraReducers: (builder) => {
@@ -122,13 +127,13 @@ export const userSlice = createSlice({
           state.loading = 'idle';
           state.result = action.payload;
           state.currentRequestId = undefined;
+          state.error = null;
         }
       })
       .addCase(fetchUserRegister.rejected, (state, action) => {
-        if (state.loading === 'pending') {
+        if (state.loading === 'pending' && action.payload !== undefined) {
           state.loading = 'idle';
           state.error = action.payload;
-          console.log(action);
         }
       })
       .addCase(fetchUserLogin.pending, (state, action) => {
@@ -145,11 +150,13 @@ export const userSlice = createSlice({
           state.loading = 'idle';
           state.result = action.payload;
           state.currentRequestId = undefined;
+          state.error = null;
         }
       })
       .addCase(fetchUserLogin.rejected, (state, action) => {
-        if (state.loading === 'pending') {
+        if (state.loading === 'pending' && action.payload !== undefined) {
           state.loading = 'idle';
+          console.log(action.error);
           state.error = action.payload;
         }
       })
@@ -167,10 +174,11 @@ export const userSlice = createSlice({
           state.loading = 'idle';
           state.result = action.payload;
           state.currentRequestId = undefined;
+          state.error = null;
         }
       })
       .addCase(fetchUserCheck.rejected, (state, action) => {
-        if (state.loading === 'pending') {
+        if (state.loading === 'pending' && action.payload !== undefined) {
           state.loading = 'idle';
           state.error = action.payload;
           state.result = null;
@@ -180,5 +188,5 @@ export const userSlice = createSlice({
   },
 });
 
-export const { logout, tempSetUser } = userSlice.actions;
+export const { logout, tempSetUser, errorInitialize } = userSlice.actions;
 export default userSlice.reducer;

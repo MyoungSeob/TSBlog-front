@@ -9,8 +9,8 @@ const TagBoxContainer = () => {
     tags: write.tags,
   }));
 
-  const onInsertTags = useCallback(
-    (item: string) => {
+  const onInsertTags = useCallback<(item: string) => void>(
+    (item) => {
       if (!item) return;
       if (tags.includes(item)) return;
       dispatch(changeField({ key: 'tags', value: [...tags, item] }));
@@ -18,8 +18,8 @@ const TagBoxContainer = () => {
     [dispatch, tags],
   );
 
-  const onRemoveTag = useCallback(
-    (item: string) => {
+  const onRemoveTag = useCallback<(item: string) => void>(
+    (item) => {
       dispatch(
         changeField({ key: 'tags', value: tags.filter((t) => t !== item) }),
       );

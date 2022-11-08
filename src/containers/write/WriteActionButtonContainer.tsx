@@ -21,14 +21,15 @@ const WriteActionButtonContainer = () => {
 
   useEffect(() => {
     if (result) {
-      const { _id, username } = result.user;
+      const { username } = result.user;
       dispatch(initialize());
-      navigate(`/@${username}/${_id}`);
+      navigate(`/@${username}/${result._id}`);
     }
     if (error) {
       console.log(error);
     }
-  }, [navigate, result, error]);
+  }, [navigate, result, error, dispatch]);
+
   return (
     <WriteActionButton onPublish={onPublish} onCancel={() => navigate(-1)} />
   );
