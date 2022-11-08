@@ -39,5 +39,5 @@ export const listPosts = async ({
 }: PostListParameterType) => {
   const queryString = QueryString.stringify({ page, username, tag });
   const response = await client.get(`/api/posts?${queryString}`);
-  return response.data;
+  return response;
 };

@@ -1,10 +1,9 @@
 import QueryString from 'qs';
 import { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import PostList from '../../components/post/PostList';
+import PostList from '../../components/posts/PostList';
 import { useAppDispatch, useAppSelector } from '../../features';
 import { fetchPostList } from '../../features/postsSlice';
-import { listPosts } from '../../lib/api/post';
 
 const PostListContainer = () => {
   const { username } = useParams();

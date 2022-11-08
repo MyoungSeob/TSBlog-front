@@ -86,7 +86,6 @@ const PostList = ({ posts, loading, error }: PostListProps) => {
   if (error) {
     return <PostListBlock>에러가 발생하였습니다.</PostListBlock>;
   }
-  console.log(posts);
 
   return (
     <PostListBlock>
@@ -102,11 +101,11 @@ const PostList = ({ posts, loading, error }: PostListProps) => {
             ({ title, user, tags, publishedDate, body, _id }, index) => {
               return (
                 <PostItem
-                  hasMarginTop={index === 0 ? false : true}
+                  hasMarginTop={false}
                   publishedDate={publishedDate}
                   tags={tags}
                   title={title}
-                  username={'ASDF'}
+                  username={user.username}
                   key={_id}
                   _id={_id}
                   body={body}

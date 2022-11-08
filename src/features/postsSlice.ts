@@ -8,6 +8,7 @@ export interface PostListState {
   result: PostListReturnType[];
   error: AxiosResponseError | null;
   currentRequestId: string | undefined;
+  lastPage: number;
 }
 
 export interface PostListReturnType {
@@ -28,16 +29,20 @@ const initialState: PostListState = {
   result: [],
   error: null,
   currentRequestId: undefined,
+  lastPage: 1,
 };
 
 export const fetchPostList = createAsyncThunk<
-  PostListReturnType[],
+  {
+    data: PostListReturnType[];
+    lastPage: string | undefined;
+  },
   PostListParameterType,
   { rejectValue: AxiosResponseError }
 >('posts/LIST', async ({ page, username, tag }, { rejectWithValue }) => {
   try {
     const result = await listPosts({ page, username, tag });
-    return result;
+    return { data: result.data, lastPage: result.headers.lastPage };
   } catch (e) {
     if (axios.isAxiosError(e) && e.response) {
       const { data, statusText, status } = e.response;
@@ -70,8 +75,11 @@ const postsSlice = createSlice({
           state.currentRequestId === action.meta.requestId
         ) {
           state.loading = 'idle';
-          state.result = [...action.payload];
+          state.result = [...action.payload.data];
           state.currentRequestId = undefined;
+          if (action.payload.lastPage !== undefined) {
+            state.lastPage = parseInt(action.payload.lastPage);
+          }
         }
       })
       .addCase(fetchPostList.rejected, (state, action) => {
@@ -84,4 +92,4 @@ const postsSlice = createSlice({
 });
 
 export default postsSlice.reducer;
-export const {} = postsSlice.actions;
+// export const {} = postsSlice.actions;

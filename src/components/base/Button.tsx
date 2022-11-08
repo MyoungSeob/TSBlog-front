@@ -1,13 +1,14 @@
 import styled from '@emotion/styled';
 import palette from '../../lib/styles';
 import { css } from '@emotion/react';
-import { Link, Path } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export interface ButtonProps {
   className?: string;
   children: string;
   fullwidth: boolean | 1 | 0;
   cyan: boolean | 1 | 0;
+  disabled?: boolean;
   to?: any;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
@@ -45,6 +46,12 @@ const StyledButton = styled.button<ButtonProps>`
       width: 100%;
       font-size: 1.125rem;
     `}
+
+    &:disabled {
+    background: ${palette.gray[3]};
+    color: ${palette.gray[5]};
+    cursor: not-allowed;
+  }
 `;
 
 const StyledLinkButton = styled(Link)<ButtonProps>`
@@ -88,6 +95,7 @@ const Button = ({
   className,
   to,
   onClick,
+  disabled,
 }: ButtonProps) => {
   return (
     <>
@@ -106,6 +114,7 @@ const Button = ({
           fullwidth={fullwidth}
           className={className}
           onClick={onClick}
+          disabled={disabled}
         >
           {children}
         </StyledButton>
