@@ -19,6 +19,7 @@ export interface PostFetchResult {
     _id: string;
     username: string;
   };
+  _id: string;
 }
 
 const initialState: PostState = {

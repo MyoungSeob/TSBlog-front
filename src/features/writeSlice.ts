@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { writePost } from '../lib/api/post';
+import { editPost, writePost } from '../lib/api/post';
 import { AxiosResponseError } from './userSlice';
 
 export interface WriteInputState {
@@ -14,6 +14,11 @@ export interface WriteState extends WriteInputState {
   result: null | WritePostReturnType;
   error: any;
   currentRequestId: string | undefined;
+  originalPostId: string | null;
+}
+
+export interface EditInputState extends WriteInputState {
+  id: string;
 }
 
 export interface WritePostReturnType {
@@ -42,11 +47,13 @@ const initialState: WriteState = {
   loading: 'idle',
   result: null,
   error: null,
+  originalPostId: null,
 };
 
 export const fetchWritePost = createAsyncThunk<
   WritePostReturnType,
-  WriteInputState
+  WriteInputState,
+  { rejectValue: AxiosResponseError }
 >('write/POST', async ({ title, body, tags }, { rejectWithValue }) => {
   try {
     const result = await writePost({ title, body, tags });
@@ -59,7 +66,25 @@ export const fetchWritePost = createAsyncThunk<
         statusText: error.response?.statusText,
       } as AxiosResponseError);
     } else {
-      return rejectWithValue(error);
+      throw new Error('포스트 작성 에러');
+    }
+  }
+});
+
+export const fetchEditPost = createAsyncThunk<
+  WritePostReturnType,
+  EditInputState,
+  { rejectValue: AxiosResponseError }
+>('write/EDIT', async ({ id, title, body, tags }, { rejectWithValue }) => {
+  try {
+    const result = await editPost({ id, title, body, tags });
+    return result;
+  } catch (e) {
+    if (axios.isAxiosError(e) && e.response) {
+      const { data, status, statusText } = e.response;
+      return rejectWithValue({ data, status, statusText });
+    } else {
+      throw new Error('포스트 수정 에러');
     }
   }
 });
@@ -79,6 +104,21 @@ const writeSlice = createSlice({
       state.title = '';
       state.body = '';
       state.tags = [];
+    },
+    setOriginalPost: (
+      state,
+      action: PayloadAction<{
+        title: string;
+        body: string;
+        tags: string[];
+        _id: string;
+      }>,
+    ) => {
+      const { title, _id, body, tags } = action.payload;
+      state.title = title;
+      state.body = body;
+      state.tags = tags;
+      state.originalPostId = _id;
     },
   },
   extraReducers: (builder) => {
@@ -102,9 +142,30 @@ const writeSlice = createSlice({
           state.loading = 'idle';
           state.error = action.payload;
         }
+      })
+      .addCase(fetchEditPost.pending, (state, action) => {
+        if (state.loading === 'idle') {
+          state.loading = 'pending';
+          state.currentRequestId = action.meta.requestId;
+        }
+      })
+      .addCase(fetchEditPost.fulfilled, (state, action) => {
+        if (
+          state.loading === 'pending' &&
+          state.currentRequestId === action.meta.requestId
+        ) {
+          state.loading = 'idle';
+          state.result = action.payload;
+        }
+      })
+      .addCase(fetchEditPost.rejected, (state, action) => {
+        if (state.loading === 'pending') {
+          state.loading = 'idle';
+          state.error = action.payload;
+        }
       });
   },
 });
 
-export const { changeField, initialize } = writeSlice.actions;
+export const { changeField, initialize, setOriginalPost } = writeSlice.actions;
 export default writeSlice.reducer;

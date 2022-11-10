@@ -10,6 +10,7 @@ export interface PostViewerProps {
   loading: 'idle' | 'pending' | 'succeeded' | 'failed';
   result: PostFetchResult | null;
   error: AxiosResponseError | null;
+  actionButtons: React.ReactNode;
 }
 
 const PostViewerBlock = styled(Responsive)`
@@ -32,7 +33,12 @@ const PostContent = styled.div`
   color: ${palette.gray[8]};
 `;
 
-const PostViewer = ({ loading, error, result }: PostViewerProps) => {
+const PostViewer = ({
+  loading,
+  error,
+  result,
+  actionButtons,
+}: PostViewerProps) => {
   if (error) {
     if (error.status === 404) {
       return <PostViewerBlock>존재하지 않는 포스트입니다.</PostViewerBlock>;
@@ -55,6 +61,7 @@ const PostViewer = ({ loading, error, result }: PostViewerProps) => {
         />
         <Tags tags={tags} />
       </PostHead>
+      {actionButtons}
       <PostContent dangerouslySetInnerHTML={{ __html: body }} />
     </PostViewerBlock>
   );

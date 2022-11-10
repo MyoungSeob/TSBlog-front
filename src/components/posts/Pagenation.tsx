@@ -1,12 +1,12 @@
 import styled from '@emotion/styled';
 import { PostListParameterType } from '../../lib/api/post';
-import qs from 'qs';
+import qs, { ParsedQs } from 'qs';
 import Button from '../base/Button';
 
 export interface PagenationProps {
   lastPage?: number;
   username: string | undefined;
-  page: string;
+  page: any;
   tag: string | qs.ParsedQs | string[] | qs.ParsedQs[] | undefined;
 }
 
@@ -21,37 +21,35 @@ const PagenationBlock = styled.div`
 const PageNumber = styled.div``;
 
 const buildLink = ({ username, tag, page }: PagenationProps) => {
-  const query = qs.stringify({ tag, page });
-  return username ? `/@${username}/${query}` : `/?${query}`;
+  if (typeof page === 'number') {
+    const query = qs.stringify({ tag, page });
+    return username ? `/@${username}/${query}` : `/?${query}`;
+  }
 };
 
 const Pagenation = ({ lastPage, page, tag, username }: PagenationProps) => {
-  const parsePage = parseInt(page);
-  console.log(parsePage);
   return (
     <PagenationBlock>
       <Button
         to={
-          parsePage === 1
-            ? undefined
-            : buildLink({ username, tag, page: String(parsePage - 1) })
+          page === 1 ? undefined : buildLink({ username, tag, page: page - 1 })
         }
         fullwidth={false}
         cyan={false}
-        disabled={parsePage === 1}
+        disabled={page === 1}
       >
         이전
       </Button>
       <PageNumber>{page}</PageNumber>
       <Button
         to={
-          parsePage === lastPage
+          page === lastPage
             ? undefined
-            : buildLink({ username, tag, page: String(parsePage + 1) })
+            : buildLink({ username, tag, page: page + 1 })
         }
         fullwidth={false}
         cyan={false}
-        disabled={parsePage === lastPage}
+        disabled={page === lastPage}
       >
         다음
       </Button>

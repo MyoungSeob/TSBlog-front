@@ -42,7 +42,7 @@ export const fetchPostList = createAsyncThunk<
 >('posts/LIST', async ({ page, username, tag }, { rejectWithValue }) => {
   try {
     const result = await listPosts({ page, username, tag });
-    return { data: result.data, lastPage: result.headers.lastPage };
+    return { data: result.data, lastPage: result.headers.last_page };
   } catch (e) {
     if (axios.isAxiosError(e) && e.response) {
       const { data, statusText, status } = e.response;

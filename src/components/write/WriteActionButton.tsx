@@ -4,6 +4,7 @@ import Button from '../base/Button';
 export interface WriteActionButtonProps {
   onCancel: () => void;
   onPublish: () => void;
+  isEdit?: boolean;
 }
 
 const WriteActionButtonBlock = styled.div`
@@ -21,11 +22,16 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const WriteActionButton = ({ onCancel, onPublish }: WriteActionButtonProps) => {
+const WriteActionButton = ({
+  onCancel,
+  onPublish,
+  isEdit,
+}: WriteActionButtonProps) => {
+  console.log(isEdit);
   return (
     <WriteActionButtonBlock>
       <StyledButton cyan fullwidth={false} onClick={onPublish}>
-        포스트 등록
+        {`포스트 ${isEdit ? '수정' : '등록'}`}
       </StyledButton>
       <StyledButton cyan={false} fullwidth={false} onClick={onCancel}>
         취소
